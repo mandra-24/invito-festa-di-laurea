@@ -1,0 +1,649 @@
+```html
+<!DOCTYPE html>
+<html lang="it" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Festa di Laurea | Ingegneria Informatica</title>
+
+  <!-- Tailwind CSS per griglie flessibili e tipografia fluida -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icone di sistema FontAwesome Apple-style -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Canvas Confetti per celebrare la conferma di presenza -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- QRCode.js per generare matematicamente il codice QR ad alto contrasto -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Font di sistema Apple e font Monospace per i dettagli tecnici -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'SFMono-Regular', 'Menlo', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* SFONDO AMBIENTALE ORGANICO */
+    .ambient-backdrop {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    html.light .ambient-backdrop {
+      background: radial-gradient(circle at 50% 8%, #f3f6fc 0%, #e9eff9 50%, #dfe7f5 100%);
+    }
+
+    html.dark .ambient-backdrop {
+      background: radial-gradient(circle at 50% 8%, #0f1523 0%, #090c15 55%, #040509 100%);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(95px);
+      pointer-events: none;
+    }
+
+    html.light .glow-1 {
+      top: -6%;
+      left: -8%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.40) 0%, rgba(56, 189, 248, 0) 70%);
+    }
+    html.light .glow-2 {
+      bottom: 6%;
+      right: -8%;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(167, 139, 250, 0.32) 0%, rgba(167, 139, 250, 0) 70%);
+    }
+
+    html.dark .glow-1 {
+      top: -6%;
+      left: -8%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.25) 0%, rgba(14, 165, 233, 0) 70%);
+    }
+    html.dark .glow-2 {
+      bottom: 6%;
+      right: -8%;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(129, 140, 248, 0.20) 0%, rgba(129, 140, 248, 0) 70%);
+    }
+
+    /* =========================================================================
+       TRATTAMENTO 3D NATURALE: CARD PRINCIPALE
+       Sfumatura direzionale a 150° + luce su bordo superiore/sinistro
+       + ombra su bordo inferiore/destro + ombre diffuse a stadi multipli.
+       ========================================================================= */
+    .card-3d-main {
+      position: relative;
+      border-radius: 34px;
+      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    /* Modalità Chiara: tonalità avorio/perla con riflesso caldo-neutro */
+    html.light .card-3d-main {
+      background: linear-gradient(150deg, #ffffff 0%, #f6f8fd 40%, #eaf0fb 100%);
+      /* Luce incidente sui bordi superiore e sinistro; ombra di smusso a destra e sotto */
+      border-top: 1px solid rgba(255, 255, 255, 0.95);
+      border-left: 1px solid rgba(255, 255, 255, 0.85);
+      border-right: 1px solid rgba(185, 198, 222, 0.50);
+      border-bottom: 1px solid rgba(170, 185, 214, 0.65);
+      box-shadow: 
+        /* Ombra di contatto e proiezione morbida */
+        0 28px 56px -14px rgba(22, 40, 75, 0.12),
+        0 12px 24px -8px rgba(22, 40, 75, 0.06),
+        0 2px 4px rgba(22, 40, 75, 0.03),
+        /* Micro luce interna speculare in alto a sinistra */
+        inset 1px 1px 0px rgba(255, 255, 255, 0.90),
+        /* Ombra d'angolo interna in basso a destra */
+        inset -1px -1px 2px rgba(180, 196, 225, 0.35);
+    }
+
+    /* Modalità Scura: titanio scuro / ardesia con bisellatura ottica discreta */
+    html.dark .card-3d-main {
+      background: linear-gradient(150deg, #1b2131 0%, #131724 45%, #0d101a 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      border-right: 1px solid rgba(0, 0, 0, 0.50);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.75);
+      box-shadow: 
+        0 35px 70px -16px rgba(0, 0, 0, 0.75),
+        0 14px 28px -8px rgba(0, 0, 0, 0.55),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.15),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.70);
+    }
+
+    /* =========================================================================
+       SUB-CARD 3D (Data, Orario, Contenitore Countdown, Proclamazione)
+       Volumetria ad incastro naturale
+       ========================================================================= */
+    .block-3d {
+      position: relative;
+      border-radius: 20px;
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    html.light .block-3d {
+      background: linear-gradient(145deg, #ffffff 0%, #f4f7fc 55%, #e9eef7 100%);
+      border-top: 1px solid rgba(255, 255, 255, 1);
+      border-left: 1px solid rgba(255, 255, 255, 0.90);
+      border-right: 1px solid rgba(190, 202, 224, 0.45);
+      border-bottom: 1px solid rgba(175, 189, 215, 0.60);
+      box-shadow: 
+        0 8px 18px -4px rgba(26, 44, 80, 0.06),
+        0 2px 6px rgba(26, 44, 80, 0.03),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1.5px rgba(185, 200, 226, 0.30);
+    }
+
+    html.dark .block-3d {
+      background: linear-gradient(145deg, #222a3d 0%, #171d2b 55%, #10141f 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-left: 1px solid rgba(255, 255, 255, 0.09);
+      border-right: 1px solid rgba(0, 0, 0, 0.45);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.65);
+      box-shadow: 
+        0 10px 22px -5px rgba(0, 0, 0, 0.45),
+        0 3px 6px rgba(0, 0, 0, 0.25),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.12),
+        inset -1px -1px 1.5px rgba(0, 0, 0, 0.55);
+    }
+
+    /* CUBETTI COUNTDOWN 3D INDIPENDENTI */
+    .cube-3d {
+      position: relative;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    html.light .cube-3d {
+      background: linear-gradient(145deg, #ffffff 0%, #f6f8fd 60%, #edf1f9 100%);
+      border-top: 1px solid rgba(255, 255, 255, 1);
+      border-left: 1px solid rgba(255, 255, 255, 0.85);
+      border-right: 1px solid rgba(195, 207, 228, 0.50);
+      border-bottom: 1px solid rgba(180, 194, 220, 0.65);
+      box-shadow: 
+        0 4px 10px -2px rgba(26, 44, 80, 0.05),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.9),
+        inset -1px -1px 1px rgba(185, 200, 226, 0.3);
+    }
+
+    html.dark .cube-3d {
+      background: linear-gradient(145deg, #273045 0%, #1a2130 60%, #121622 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(0, 0, 0, 0.50);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.70);
+      box-shadow: 
+        0 5px 12px -3px rgba(0, 0, 0, 0.40),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.10),
+        inset -1px -1px 1px rgba(0, 0, 0, 0.55);
+    }
+
+    /* MODULO QR CODE 3D */
+    .qr-module-3d {
+      position: relative;
+      border-radius: 26px;
+      padding: 12px;
+      transition: all 0.3s ease;
+    }
+
+    html.light .qr-module-3d {
+      background: linear-gradient(150deg, #ffffff 0%, #f4f7fc 60%, #ebf0f9 100%);
+      border-top: 1px solid rgba(255, 255, 255, 1);
+      border-left: 1px solid rgba(255, 255, 255, 0.90);
+      border-right: 1px solid rgba(190, 203, 225, 0.50);
+      border-bottom: 1px solid rgba(175, 190, 218, 0.65);
+      box-shadow: 
+        0 14px 28px -6px rgba(24, 42, 75, 0.09),
+        0 4px 10px rgba(24, 42, 75, 0.03),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.95),
+        inset -1px -1px 1.5px rgba(180, 196, 224, 0.35);
+    }
+
+    html.dark .qr-module-3d {
+      background: linear-gradient(150deg, #242c3f 0%, #19202f 60%, #111520 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 1px solid rgba(255, 255, 255, 0.09);
+      border-right: 1px solid rgba(0, 0, 0, 0.50);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.70);
+      box-shadow: 
+        0 16px 32px -8px rgba(0, 0, 0, 0.60),
+        0 5px 12px rgba(0, 0, 0, 0.35),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.12),
+        inset -1px -1px 1.5px rgba(0, 0, 0, 0.60);
+    }
+
+    /* Piastra interna ad alto contrasto per consentire la perfetta lettura della fotocamera */
+    .qr-inner-plate {
+      background: #FFFFFF;
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* PULSANTE RSVP 3D APPLE CON BISELLATURA TATTICA */
+    .btn-3d-primary {
+      position: relative;
+      border-radius: 18px;
+      background: linear-gradient(160deg, #1a85ff 0%, #0071e3 50%, #005bb5 100%);
+      border-top: 1px solid rgba(255, 255, 255, 0.55);
+      border-left: 1px solid rgba(255, 255, 255, 0.35);
+      border-right: 1px solid rgba(0, 60, 140, 0.50);
+      border-bottom: 1px solid rgba(0, 45, 110, 0.75);
+      box-shadow: 
+        0 10px 24px -4px rgba(0, 113, 227, 0.42),
+        0 3px 8px rgba(0, 113, 227, 0.20),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.45),
+        inset -1px -1px 2px rgba(0, 40, 100, 0.40);
+      transition: transform 0.15s ease, opacity 0.2s ease, filter 0.2s ease;
+    }
+    .btn-3d-primary:hover {
+      filter: brightness(1.04);
+    }
+    .btn-3d-primary:active {
+      transform: translateY(1px);
+      box-shadow: 
+        0 5px 12px -2px rgba(0, 113, 227, 0.40),
+        inset 1px 1px 1px rgba(0, 30, 80, 0.5);
+    }
+  </style>
+</head>
+
+<body class="flex flex-col items-center justify-between p-4 sm:p-7 min-h-screen relative text-slate-800 dark:text-slate-100 select-none">
+
+  <!-- Sfondo luminoso con sfumature ambientali naturali -->
+  <div class="ambient-backdrop">
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+  </div>
+
+  <!-- Header Superiore con controlli in rilievo 3D naturale -->
+  <header class="w-full max-w-md flex items-center justify-between py-2 px-1 relative z-10">
+    
+    <!-- Chip di Stato Evento 3D -->
+    <div class="block-3d px-3.5 py-1.5 rounded-full flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-mono text-[11px] tracking-wider text-slate-600 dark:text-slate-300 font-medium">EVENT_STATUS: CONFERMATO</span>
+    </div>
+
+    <!-- Selettore Tema Giorno / Notte 3D -->
+    <button id="themeToggleBtn" onclick="toggleTheme()" class="block-3d px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:scale-105 active:scale-95 transition-all cursor-pointer" aria-label="Cambia modalità giorno e notte">
+      <i id="themeIconSun" class="fa-solid fa-sun text-amber-500 text-xs hidden dark:inline"></i>
+      <i id="themeIconMoon" class="fa-solid fa-moon text-blue-600 text-xs dark:hidden"></i>
+      <span id="themeLabel" class="text-[11px] font-mono tracking-wider font-semibold">LIGHT</span>
+    </button>
+  </header>
+
+  <!-- Contenitore Centrale: Scheda Principale 3D Statica -->
+  <main class="w-full max-w-md my-auto relative z-10 py-3">
+
+    <div class="card-3d-main overflow-hidden">
+      
+      <!-- Sezione Superiore: Badge, Titoli e Dati Evento -->
+      <div class="p-6 sm:p-8 pb-5 relative z-10">
+        
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1">
+            
+            <!-- Badge 3D "GRADUATION PARTY" -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full block-3d text-xs font-semibold tracking-wider text-blue-600 dark:text-blue-400 uppercase mb-3.5">
+              <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i>
+              GRADUATION PARTY
+            </div>
+
+            <!-- Prima riga sotto il badge: Ingegneria Informatica con micro-tag </> e font sottotitolo -->
+            <div class="flex items-center gap-2 mt-0.5 mb-2">
+              <span class="text-cyan-600 dark:text-cyan-400 font-mono text-sm font-semibold">&lt;/&gt;</span>
+              <span class="text-sm sm:text-base font-medium tracking-wide text-slate-600 dark:text-slate-300">
+                Ingegneria Informatica
+              </span>
+            </div>
+
+            <!-- Seconda riga: Sei invitato alla mia festa di laurea! con font titolo bold ad alto contrasto -->
+            <h1 class="text-2xl sm:text-[30px] font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              Sei invitato alla mia festa di laurea!
+            </h1>
+          </div>
+
+          <!-- Microchip iconico 3D in stile Apple Silicon -->
+          <div class="w-12 h-12 rounded-2xl block-3d flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+              <rect x="8" y="8" width="8" height="8" rx="1.5"></rect>
+              <path d="M4 9H2M4 15H2M20 9H22M20 15H22M9 4V2M15 4V2M9 20V22M15 20V22"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Riquadri Tridimensionali Separati per Data & Orario -->
+        <div class="mt-6 pt-5 border-t border-slate-200/50 dark:border-white/5 grid grid-cols-2 gap-3.5">
+          
+          <!-- Card 3D: DATA FESTA -->
+          <div class="block-3d p-3.5 rounded-2xl">
+            <span class="text-[10px] font-mono tracking-widest uppercase text-slate-500 dark:text-slate-400 block">DATA FESTA</span>
+            <p class="text-sm sm:text-[15px] font-semibold text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
+              <i class="fa-regular fa-calendar text-blue-600 dark:text-blue-400 text-xs"></i>
+              Sabato 17 Ottobre
+            </p>
+          </div>
+
+          <!-- Card 3D: ORARIO INIZIO -->
+          <div class="block-3d p-3.5 rounded-2xl">
+            <span class="text-[10px] font-mono tracking-widest uppercase text-slate-500 dark:text-slate-400 block">ORARIO INIZIO</span>
+            <p class="text-sm sm:text-[15px] font-semibold text-slate-900 dark:text-white mt-1 flex items-center gap-1.5">
+              <i class="fa-regular fa-clock text-blue-600 dark:text-blue-400 text-xs"></i>
+              Ore 20:30
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Sezione Conto alla Rovescia (Riquadro 3D con 4 blocchi indipendenti) -->
+      <div class="px-6 sm:px-8 py-2 relative z-10">
+        <div class="block-3d p-4 rounded-2xl">
+          
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-slate-600 dark:text-slate-300 flex items-center gap-1.5 font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-ping"></span>
+              CONTO ALLA ROVESCIA
+            </span>
+          </div>
+
+          <!-- I 4 blocchi 3D del timer -->
+          <div class="grid grid-cols-4 gap-2.5 text-center">
+            
+            <div class="cube-3d py-2.5 px-1">
+              <span id="countdownDays" class="font-mono text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-wider">--</span>
+              <span class="block text-[9px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">Giorni</span>
+            </div>
+
+            <div class="cube-3d py-2.5 px-1">
+              <span id="countdownHours" class="font-mono text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-wider">--</span>
+              <span class="block text-[9px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">Ore</span>
+            </div>
+
+            <div class="cube-3d py-2.5 px-1">
+              <span id="countdownMinutes" class="font-mono text-lg sm:text-xl font-bold text-slate-900 dark:text-white tracking-wider">--</span>
+              <span class="block text-[9px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">Min</span>
+            </div>
+
+            <!-- Cubetto Secondi con accento cromatico -->
+            <div class="cube-3d py-2.5 px-1 border-blue-400/40 bg-blue-500/10">
+              <span id="countdownSeconds" class="font-mono text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400 tracking-wider">--</span>
+              <span class="block text-[9px] font-mono text-blue-600/80 dark:text-blue-400/80 uppercase tracking-widest mt-0.5">Sec</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Sezione Modulo QR Code 3D & Azione RSVP -->
+      <div class="p-6 sm:p-8 pt-4 flex flex-col items-center text-center relative z-10">
+        
+        <!-- Scatola QR Code 3D con luce/ombra sui bordi -->
+        <div onclick="openLocation()" class="group cursor-pointer flex flex-col items-center" title="Tocca per aprire la posizione su Google Maps">
+          <div class="qr-module-3d transition-transform duration-200 active:scale-95 group-hover:scale-[1.02]">
+            <div class="qr-inner-plate flex items-center justify-center">
+              <div id="qrcodeContainer" class="w-36 h-36 flex items-center justify-center [&>img]:mx-auto [&>canvas]:mx-auto"></div>
+            </div>
+          </div>
+
+          <div class="mt-3 flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors font-medium">
+            <i class="fa-solid fa-location-dot text-blue-600 dark:text-blue-400 text-xs"></i>
+            <span>Tocca o inquadra per la posizione</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"></i>
+          </div>
+        </div>
+
+        <!-- Tasto RSVP 3D Apple -->
+        <div class="w-full mt-6">
+          <button id="rsvpButton" onclick="handleRSVP(event)" class="btn-3d-primary w-full py-4 px-6 font-semibold text-sm text-white flex items-center justify-center gap-2.5 cursor-pointer">
+            <i id="rsvpIcon" class="fa-solid fa-champagne-glasses text-sm"></i>
+            <span id="rsvpText">Conferma presenza</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Card 3D a Scomparsa: Dettagli Proclamazione Accademica -->
+    <div class="mt-4 card-3d-main rounded-2xl overflow-hidden transition-all duration-300">
+      <button onclick="toggleProclamation()" class="w-full p-4 flex items-center justify-between text-left group cursor-pointer">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl block-3d flex items-center justify-center text-blue-600 dark:text-blue-400 text-xs shrink-0">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <div>
+            <h2 class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              Mostra dettagli Proclamazione accademica
+            </h2>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Informazioni per chi desidera assistere alla seduta in università
+            </p>
+          </div>
+        </div>
+        <div class="w-6 h-6 rounded-full block-3d flex items-center justify-center text-slate-400 text-xs">
+          <i id="accordionIcon" class="fa-solid fa-chevron-down transition-transform duration-300"></i>
+        </div>
+      </button>
+
+      <!-- Contenuto Proclamazione Espandibile -->
+      <div id="proclamationContent" class="hidden px-4 pb-4 pt-1 border-t border-slate-200/50 dark:border-white/5 text-xs space-y-2.5">
+        <div class="flex justify-between items-center py-1">
+          <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px]">DATA E ORA</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-100">Lunedì 5 Ottobre | Ore 15:30</span>
+        </div>
+        <div class="flex justify-between items-center py-1">
+          <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px]">AULA</span>
+          <span class="font-medium text-blue-600 dark:text-blue-400">Aula Magna</span>
+        </div>
+        <div class="flex justify-between items-center py-1">
+          <span class="text-slate-500 dark:text-slate-400 font-mono text-[11px]">LUOGO</span>
+          <span class="font-medium text-slate-700 dark:text-slate-200">Edificio 7 (Dipartimento di Ingegneria)</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // 🌓 1. GESTIONE MODALITÀ NOTTE / GIORNO
+    // =========================================================================
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const isDark = htmlEl.classList.toggle('dark');
+      htmlEl.classList.toggle('light', !isDark);
+      
+      const themeLabel = document.getElementById('themeLabel');
+      if (isDark) {
+        themeLabel.innerText = "DARK";
+        localStorage.setItem('theme', 'dark');
+      } else {
+        themeLabel.innerText = "LIGHT";
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    (function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const themeLabel = document.getElementById('themeLabel');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        if (themeLabel) themeLabel.innerText = "DARK";
+      } else {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        if (themeLabel) themeLabel.innerText = "LIGHT";
+      }
+    })();
+
+    // =========================================================================
+    // 📍 2. INDIRIZZO / LINK POSIZIONE FESTA
+    // Modifica questa variabile incollando il link esatto di Google Maps o Apple Maps.
+    // =========================================================================
+    const MAPS_URL = "https://maps.app.goo.gl/222YStCecv8yw2sy6";
+
+    // =========================================================================
+    // 💬 3. NUMERO WHATSAPP PER RSVP (Opzionale)
+    // Inserisci il tuo numero con prefisso (es: "393917148991").
+    // Lasciando "" eseguirà l'animazione grafica di coriandoli.
+    // =========================================================================
+    const WHATSAPP_NUMBER = "393917148991";
+
+    // Generazione del QR Code reale tramite QRCode.js
+    function renderQRCode() {
+      const container = document.getElementById("qrcodeContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      new QRCode(container, {
+        text: MAPS_URL,
+        width: 144,
+        height: 144,
+        colorDark: "#080b14",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    function openLocation() {
+      window.open(MAPS_URL, '_blank');
+    }
+
+    window.addEventListener('DOMContentLoaded', renderQRCode);
+
+    // =========================================================================
+    // ⏱ 4. CONTO ALLA ROVESCIA (Sabato 17 Ottobre ore 20:30)
+    // =========================================================================
+    function initCountdown() {
+      const now = new Date();
+      let targetYear = now.getFullYear();
+      let eventDate = new Date(targetYear, 9, 17, 20, 30, 0); // Mese 9 = Ottobre
+
+      // Se la data per l'anno in corso è già trascorsa, calcola per il prossimo anno
+      if (now.getTime() > eventDate.getTime()) {
+        eventDate = new Date(targetYear + 1, 9, 17, 20, 30, 0);
+      }
+
+      function updateTimer() {
+        const diff = eventDate.getTime() - new Date().getTime();
+
+        if (diff > 0) {
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+          document.getElementById("countdownDays").innerText = String(d).padStart(2, '0');
+          document.getElementById("countdownHours").innerText = String(h).padStart(2, '0');
+          document.getElementById("countdownMinutes").innerText = String(m).padStart(2, '0');
+          document.getElementById("countdownSeconds").innerText = String(s).padStart(2, '0');
+        } else {
+          document.getElementById("countdownDays").innerText = "00";
+          document.getElementById("countdownHours").innerText = "00";
+          document.getElementById("countdownMinutes").innerText = "00";
+          document.getElementById("countdownSeconds").innerText = "00";
+        }
+      }
+
+      setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+    initCountdown();
+
+    // =========================================================================
+    // 🎉 5. CONFERMA PRESENZA (RSVP) CON CORIANDOLI E NOTIFICA
+    // =========================================================================
+    function handleRSVP(event) {
+      if (event) event.stopPropagation();
+
+      confetti({
+        particleCount: 75,
+        spread: 65,
+        origin: { y: 0.7 },
+        colors: ['#0071E3', '#38BDF8', '#6366F1', '#34D399', '#FFFFFF'],
+        disableForReducedMotion: true
+      });
+
+      const btn = document.getElementById('rsvpButton');
+      const text = document.getElementById('rsvpText');
+      const icon = document.getElementById('rsvpIcon');
+
+      text.innerText = "Presenza confermata!";
+      icon.className = "fa-solid fa-check text-white";
+      btn.style.background = "linear-gradient(160deg, #10b981 0%, #059669 50%, #047857 100%)";
+
+      if (WHATSAPP_NUMBER && WHATSAPP_NUMBER.trim() !== "") {
+        setTimeout(() => {
+          const msg = encodeURIComponent("Ciao! Ti confermo con molto piacere la mia presenza alla tua festa.🎓🥂");
+          window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+        }, 500);
+      }
+    }
+
+    // =========================================================================
+    // 🏛️ 6. ACCORDION PROCLAMAZIONE
+    // =========================================================================
+    function toggleProclamation() {
+      const content = document.getElementById('proclamationContent');
+      const icon = document.getElementById('accordionIcon');
+      const isHidden = content.classList.contains('hidden');
+
+      if (isHidden) {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+      } else {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+      }
+    }
+  </script>
+</body>
+</html>
